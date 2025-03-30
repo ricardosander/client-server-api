@@ -109,7 +109,10 @@ func FindCotacao() (*map[string]Price, error) {
 
 func saveCotacao(currency, value string) error {
     query := `INSERT INTO cotacao (currency, value) VALUES (?, ?)`
-    _, err := db.Exec(query, currency, value)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*10)
+	defer cancel()
+
+    _, err := db.ExecContext(ctx, query, currency, value)
     return err
 }
 
