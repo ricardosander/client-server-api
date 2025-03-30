@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -80,8 +82,10 @@ func handleCotacao(w http.ResponseWriter, r *http.Request) {
 
 func FindCotacao() (*map[string]Price, error) {
 	url := "https://economia.awesomeapi.com.br/json/last/USD-BRL"
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond * 200)
+	defer cancel()
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
