@@ -1,26 +1,51 @@
-Olá dev, tudo bem?
- 
-Neste desafio vamos aplicar o que aprendemos sobre webserver http, contextos,
-banco de dados e manipulação de arquivos com Go.
- 
-Você precisará nos entregar dois sistemas em Go:
-- client.go
-- server.go
- 
-Os requisitos para cumprir este desafio são:
- 
-O client.go deverá realizar uma requisição HTTP no server.go solicitando a cotação do dólar.
- 
-O server.go deverá consumir a API contendo o câmbio de Dólar e Real no endereço: https://economia.awesomeapi.com.br/json/last/USD-BRL e em seguida deverá retornar no formato JSON o resultado para o cliente.
- 
-Usando o package "context", o server.go deverá registrar no banco de dados SQLite cada cotação recebida, sendo que o timeout máximo para chamar a API de cotação do dólar deverá ser de 200ms e o timeout máximo para conseguir persistir os dados no banco deverá ser de 10ms.
- 
-O client.go precisará receber do server.go apenas o valor atual do câmbio (campo "bid" do JSON). Utilizando o package "context", o client.go terá um timeout máximo de 300ms para receber o resultado do server.go.
- 
-Os 3 contextos deverão retornar erro nos logs caso o tempo de execução seja insuficiente.
- 
-O client.go terá que salvar a cotação atual em um arquivo "cotacao.txt" no formato: Dólar: {valor}
- 
-O endpoint necessário gerado pelo server.go para este desafio será: /cotacao e a porta a ser utilizada pelo servidor HTTP será a 8080.
- 
-Ao finalizar, envie o link do repositório para correção.
+# Desafio Client-Server API
+
+Desafio para a pós graduação Go Expoert da Full Cycle.
+
+## Detalhes
+
+Projeto desenvolvido em Golang usando apenas uma lib externa (driver SQLite).
+
+O projeto implementa tanto um servidor quanto um cliente em go. O servidor faz uma requisição para uma API externa, buscando a cotação atual do dólar, e persiste essa informação em um banco SQLite (`cotacao.db`), retornando o resultado na API.
+
+O Servidor sobe na porta `8080` e expõe a rota `/cotacao` (`GET`, sem parâmetros).
+
+O cliente faz uma requisição para o servidor e persiste o resultado em um arquivo local com nome `cotacao.txt`, onde cada linha é uma requisição feita com sucesso.
+
+As chamadas a recursos bloqueantes possuem timeouts:
+- chamada cliente -> servidor tem timeout de 300ms
+- chamada servidor -> API tem timeout de 200ms
+- chamada servidor -> DB tem timeout de 10ms
+- escrita cliente -> arquivo não tem timeout
+
+## Rodando a aplicação
+
+Para rodar a aplicação, primeiro é necessário ter a versão do GoLang 1.18 ou superior.
+
+Além disso, é preciso baixaar as dependências rodando o comando 
+
+```
+go mod tidy
+```
+
+### Rodando
+Após baixar as dependências, precisamos rodar o servidor com o seguinte comando
+```
+go run server.go
+```
+
+Isso irá configurar o banco de dados, criando-o e criando a tabela se ainda não existir, e iniciar o servidor HTTP na porta `8080`.
+
+### Rodando o client
+
+Para rodar o client, primeiro precisamos rodar o servidor, caso contrário o caminho quie o client chama não existirá.
+
+Tendo o servidor rodando, rode
+```
+go run client.go
+```
+
+Isso fará uma requisição para o server e salvará a resposta em um arquivo. Qualquer erro será logado. A aplicação finaliza sozinha após executar.
+
+## Bibliotecas
+O projeto usa apenas uma biblioteca externa, o driver do SQLite. Todas outras bibliotecas utilizadas são nativas do GoLang 1.18.
