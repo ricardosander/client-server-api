@@ -63,6 +63,12 @@ func handleCotacao(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err := saveCotacao("USDBRL", priceValue.Value); err != nil {
+        log.Default().Printf("Error saving to database: %v", err)
+        http.Error(w, "Failed to save data", http.StatusInternalServerError)
+        return
+    }
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(priceValue); err != nil {
@@ -95,6 +101,12 @@ func FindCotacao() (*map[string]Price, error) {
 		return nil, err
 	}
 	return &data, nil
+}
+
+func saveCotacao(currency, value string) error {
+    query := `INSERT INTO cotacao (currency, value) VALUES (?, ?)`
+    _, err := db.Exec(query, currency, value)
+    return err
 }
 
 type Price struct {
