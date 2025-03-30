@@ -47,7 +47,7 @@ type PriceResponse struct {
 func SaveToFile(price PriceResponse) error {
 	fmt.Printf("Saving to file: %s\n", price.Value)
 
-	file, err := os.Create("cotacao.txt")
+	file, err := os.OpenFile("cotacao.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
