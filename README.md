@@ -38,7 +38,7 @@ Isso irá configurar o banco de dados, criando-o e criando a tabela se ainda nã
 
 ### Rodando o client
 
-Para rodar o client, primeiro precisamos rodar o servidor, caso contrário o caminho quie o client chama não existirá.
+Para rodar o client, primeiro precisamos rodar o servidor, caso contrário o caminho que o client chama não existirá.
 
 Tendo o servidor rodando, rode
 ```
