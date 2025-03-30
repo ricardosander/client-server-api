@@ -1,13 +1,31 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
+var db *sql.DB
+
 func main() {
+
+	var err error 
+	db, err = sql.Open("sqlite3", "./cotacao.db")
+	if err != nil {
+		log.Fatalf("Error opening database: %v", err)
+		return
+	}
+	defer db.Close()
+	if err := initializeDatabase(); err != nil {
+		log.Fatalf("Error initializing database: %v", err)
+		return
+	}
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/cotacao", handleCotacao)
@@ -15,6 +33,19 @@ func main() {
 	log.Default().Println("Starting server on :8080")
 	http.ListenAndServe(":8080", mux)
 	log.Default().Println("Server stopped")
+}
+
+func initializeDatabase() error {
+	createDatabaseQuery := `
+	CREATE TABLE IF NOT EXISTS cotacao (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		currency TEXT NOT NULL,
+		value REAL NOT NULL,
+		timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+	);
+	`
+	_, err := db.Exec(createDatabaseQuery)
+	return err
 }
 
 func handleCotacao(w http.ResponseWriter, r *http.Request) {
